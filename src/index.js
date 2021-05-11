@@ -52,6 +52,19 @@ class TextLearner extends React.Component {
                 segment: segment,
             }, null)
         );
+
+        this.handleKeyDown = this.handleKeyDown.bind(this);
+    }
+
+    componentDidMount() {
+        document.addEventListener('keydown', this.handleKeyDown);
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener('keydown', this.handleKeyDown);
+    }
+
+    handleKeyDown() {
     }
 
     render() {
