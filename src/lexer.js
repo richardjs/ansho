@@ -62,38 +62,3 @@ export function tokenize(text) {
 
     return segments;
 }
-
-
-function _tokenize(text) {
-    let segments = [];
-    let tokens = [];
-
-    let segment = [];
-    let string = '';
-    let suffix = '';
-    for (const c of text) {
-        if (TOKEN_DELIMITERS.includes(c)) {
-            suffix += c;
-            continue;
-        }
-
-        if (string.length && suffix.length) {
-            segment.push(new Token(string, suffix));
-
-            for (const d of suffix) {
-                if (SEGMENT_DELIMITERS.includes(d)) {
-                    segments.push(segment);
-                    segment = [];
-                    break;
-                }
-            }
-
-            string = '';
-            suffix = '';
-        }
-
-        string += c;
-    }
-
-    return segments;
-}
