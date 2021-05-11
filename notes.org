@@ -1,0 +1,20 @@
+* Data model
+  The *text* is broken down into *tokens*. Tokens are typically words, but may be larger or smaller (e.g. digits when memorizing a number). Tokens are grouped into *segments*, which are typically delimeted by punctiation (e.g. sentences or clauses).
+
+  Each token has a *score*, which represents how well it is memorized.
+
+  Every token starts off with a score of 0.
+
+  Each segment has a composite score, made up of its tokens' scores.
+
+  When learning, the app picks the segment with the lowest score, but only from available segments.
+
+  For a segement to be available, the segments preceeding it (within a configurable range?) must all meet a minimum score threshold.
+
+  So, as learning progreses, new segments are added as previous segments are memorized.
+  
+* Glossary
+  - segment :: a collection of tokens, typically broken up by punctuation or other delimeters; the text is meomrized by segment
+  - suffix :: characters that come after a token, before the next token (e.g. spaces and punctuation)
+  - text :: the full target text to memorize
+  - token :: the smallest unit, typically a word
