@@ -1,4 +1,4 @@
-import {tokenize} from './lexer.js';
+import {AnshoText} from './lexer.js';
 import {SAMPLE_TEXT} from './sample.js';
 
 
@@ -45,8 +45,8 @@ class TextLearner extends React.Component {
     constructor(props) {
         super(props);
 
-        const segments = tokenize(SAMPLE_TEXT);
-        this.segments = segments.map((segment, index) => 
+        this.text = AnshoText.parse(SAMPLE_TEXT);
+        this.segments = this.text.segments.map((segment, index) =>
             e(Segment, {
                 key: index,
                 segment: segment,

@@ -42,23 +42,34 @@ export class Segment {
 }
 
 
-export function tokenize(text) {
-    let segments = [];
-
-    let segmentText = '';
-    let inDelimiter = false;
-    for (const c of text) {
-        if (SEGMENT_DELIMITERS.includes(c)) {
-           inDelimiter = true; 
-        } else if (inDelimiter) {
-            segments.push(new Segment(segmentText));
-            segmentText = '';
-            inDelimiter = false;
-        }
-        segmentText += c;
+export class AnshoText {
+    constructor() {
+        this.segments = []
     }
 
-    segments.push(new Segment(segmentText));
+    static parse(raw) {
+        const text = new AnshoText();
 
-    return segments;
+        let segmentText = '';
+        let inDelimiter = false;
+        for (const c of raw) {
+            if (SEGMENT_DELIMITERS.includes(c)) {
+               inDelimiter = true;
+            } else if (inDelimiter) {
+                text.segments.push(new Segment(segmentText));
+                segmentText = '';
+                inDelimiter = false;
+            }
+            segmentText += c;
+        }
+
+        text.segments.push(new Segment(segmentText));
+        return text;
+    }
+
+    static load(json) {
+    }
+
+    json() {
+    }
 }
