@@ -55,7 +55,7 @@ export class AnshoText {
         for (const c of raw) {
             if (SEGMENT_DELIMITERS.includes(c)) {
                inDelimiter = true;
-            } else if (inDelimiter) {
+            } else if (inDelimiter && !TOKEN_DELIMITERS.includes(c)) {
                 text.segments.push(new Segment(segmentText));
                 segmentText = '';
                 inDelimiter = false;
