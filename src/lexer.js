@@ -70,6 +70,19 @@ export class AnshoText {
     static load(json) {
     }
 
-    json() {
+    toJSON() {
+        const json = {"segments": []}
+        for (const segment of this.segments) {
+            const segmentJSON = [];
+            for (const token of segment.tokens) {
+                segmentJSON.push({
+                    "string": token.string,
+                    "suffix": token.suffix,
+                })
+            }
+            json.segments.push(segmentJSON);
+        }
+
+        return JSON.stringify(json);
     }
 }
