@@ -78,38 +78,4 @@ export class AnshoText {
 
         return text;
     }
-
-    static load(json) {
-        const data = JSON.parse(json);
-        const text = new AnshoText();
-
-        for (const segmentData of data.segments) {
-            const segment = new Segment();
-            for (const tokenData of segmentData) {
-                const token = new Token();
-                token.string = tokenData.string;
-                token.suffix = tokenData.suffix;
-                segment.tokens.push(token);
-            }
-            text.segments.push(segment);
-        }
-
-        return text;
-    }
-
-    toJSON() {
-        const data = {"segments": []}
-        for (const segment of this.segments) {
-            const segmentData = [];
-            for (const token of segment.tokens) {
-                segmentData.push({
-                    "string": token.string,
-                    "suffix": token.suffix,
-                })
-            }
-            data.segments.push(segmentData);
-        }
-
-        return JSON.stringify(data);
-    }
 }
