@@ -1,3 +1,11 @@
 .token {
     white-space: pre-wrap;
 }
+
+.current {
+    color: blue;
+}
+
+.miss { 
+    color: red;
+}

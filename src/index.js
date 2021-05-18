@@ -13,9 +13,21 @@ class Token extends React.Component {
     }
 
     render() {
+        let className = 'current';
+        switch (this.props.response) {
+            case 1:
+                className = 'hit';
+                break;
+            case 0:
+                className = 'miss';
+                break;
+        }
+
         return e('span',
             {className: 'token'},
-            e('span', null, this.token.string),
+            e('span', {
+                className: className,
+            }, this.token.string),
             e('span', null, this.token.suffix),
         );
     }
@@ -25,23 +37,31 @@ class Token extends React.Component {
 class Segment extends React.Component {
     constructor(props) {
         super(props);
-
-        this.state = {
-            mode: 'prompt',
-            tokeni: 0,
-        }
     }
 
     render() {
         const visible = [];
-        for (let i = 0; i < this.state.tokeni; i++) {
-            visible.push(e(Token, {token: this.props.segment.tokens[i]}, null));
+        let i;
+        for (i = 0; i < this.props.responses.length; i++) {
+            visible.push(e(Token, {
+                token: this.props.segment.tokens[i],
+                response: this.props.responses[i],
+            }, null));
         }
-        return e('span',
-            {className: 'segment'},
-            ...visible,
-            this.state.mode == 'prompt' ? '_____' : ''
-        );
+
+        if (this.props.mode == 'prompt') {
+            return e('span',
+                {className: 'segment'},
+                ...visible,
+                '_____'
+            );
+        } else {
+            return e('span',
+                {className: 'segment'},
+                ...visible,
+                e(Token, {token: this.props.segment.tokens[i]}, null)
+            );
+        }
     }
 }
 
@@ -50,6 +70,11 @@ class Reviewer extends React.Component {
     constructor(props) {
         super(props);
 
+        this.state = {
+            mode: 'prompt',
+            responses: [],
+        }
+        
         this.handleKeyDown = this.handleKeyDown.bind(this);
     }
 
@@ -61,11 +86,29 @@ class Reviewer extends React.Component {
         document.removeEventListener('keydown', this.handleKeyDown);
     }
 
-    handleKeyDown() {
+    handleKeyDown(e) {
+        if (['ArrowLeft', 'ArrowRight'].includes(e.key)) {
+            switch (this.state.mode) {
+                case 'prompt':
+                    this.setState({mode: 'respond'});
+                    break;
+                case 'respond':
+                    const response = e.key == 'ArrowRight' ? 1 : 0;
+                    this.setState({
+                        mode: 'prompt',
+                        responses: this.state.responses.concat(response),
+                    });
+                    break;
+            }
+        }
     }
 
     render() {
-        return e(Segment, {'segment': this.props.text.nextSegment()}, null);
+        return e(Segment, {
+            segment: this.props.text.nextSegment(),
+            mode: this.state.mode,
+            responses: this.state.responses,
+        }, null);
     }
 }
 
