@@ -8,6 +8,9 @@ export class Token {
     constructor() {
         this.string = '';
         this.suffix = '';
+
+        this.hits = 0;
+        this.visits = 0;
     }
 
     static parse(text) {
@@ -22,6 +25,10 @@ export class Token {
         }
 
         return token;
+    }
+
+    score() {
+        return this.visits > 0 ? this.hits / this.visits : -1;
     }
 }
 
@@ -51,12 +58,29 @@ export class Segment {
 
         return segment;
     }
+
+    score() {
+        const tokenScores = this.tokens.map(token => token.score());
+        return Math.min(...tokenScores);
+    }
 }
 
 
 export class AnshoText {
     constructor() {
         this.segments = []
+    }
+
+    nextSegment() {
+        let next = this.segments[0];
+        let score = next.score();
+        for (const segment of this.segments) {
+            if (segment.score() < score) {
+                next = segment;
+                score = next.score();
+            }
+        }
+        return next;
     }
 
     static parse(raw) {

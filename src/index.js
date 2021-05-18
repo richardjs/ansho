@@ -26,32 +26,29 @@ class Segment extends React.Component {
     constructor(props) {
         super(props);
 
-        this.segment = props.segment;
-        this.tokens = props.segment.tokens.map((token, index) =>
-            e(Token, {
-                key: index,
-                token: token,
-            }, null)
-        );
+        this.state = {
+            mode: 'prompt',
+            tokeni: 0,
+        }
     }
 
     render() {
-        return this.tokens;
+        const visible = [];
+        for (let i = 0; i < this.state.tokeni; i++) {
+            visible.push(e(Token, {token: this.props.segment.tokens[i]}, null));
+        }
+        return e('span',
+            {className: 'segment'},
+            ...visible,
+            this.state.mode == 'prompt' ? '_____' : ''
+        );
     }
 }
 
 
-class TextLearner extends React.Component {
+class Reviewer extends React.Component {
     constructor(props) {
         super(props);
-
-        this.text = AnshoText.parse(SAMPLE_TEXT);
-        this.segments = this.text.segments.map((segment, index) =>
-            e(Segment, {
-                key: index,
-                segment: segment,
-            }, null)
-        );
 
         this.handleKeyDown = this.handleKeyDown.bind(this);
     }
@@ -68,23 +65,20 @@ class TextLearner extends React.Component {
     }
 
     render() {
-        return this.segments;
+        return e(Segment, {'segment': this.props.text.nextSegment()}, null);
     }
 }
 
 
 class App extends React.Component {
-    constructor(props){
-        super(props);
-    }
-
     render() {
-        return e('div', null, e(TextLearner, {text: SAMPLE_TEXT}, null));
+        return e('div', null, e(Reviewer, {text: this.props.text}, null));
     }
 }
 
 
+const text = AnshoText.parse(SAMPLE_TEXT)
 ReactDOM.render(
-    e(App, null, null),
+    e(App, {text: text}, null),
     document.getElementById('root')
 );
