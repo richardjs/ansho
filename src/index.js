@@ -1,4 +1,5 @@
-import {AnshoText} from './lexer.js';
+import * as Lexer from './lexer.js';
+import * as Model from './model.js';
 import {SAMPLE_TEXT} from './sample.js';
 
 
@@ -60,7 +61,8 @@ class Reviewer extends React.Component {
             responses: [],
         }
 
-        this.segment = this.props.text.nextSegment();
+        //this.segment = this.props.text.nextSegment();
+        this.segment = this.props.model.segments[0];
         
         this.handleKeyDown = this.handleKeyDown.bind(this);
     }
@@ -116,13 +118,13 @@ class Reviewer extends React.Component {
 }
 
 
-const text = AnshoText.parse(SAMPLE_TEXT)
+const model = Lexer.parse(SAMPLE_TEXT);
 class App extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            text: text
+            model: model
         };
 
         this.handleSegmentResponses = this.handleSegmentResponses.bind(this);
@@ -130,7 +132,7 @@ class App extends React.Component {
 
     render() {
         return e('div', null, e(Reviewer, {
-            text: this.state.text,
+            model: this.state.model,
             onSegmentResponses: this.handleSegmentResponses
         }, null));
     }
@@ -141,6 +143,6 @@ class App extends React.Component {
 
 
 ReactDOM.render(
-    e(App, {text: text}, null),
+    e(App, null, null),
     document.getElementById('root')
 );
