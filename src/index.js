@@ -61,8 +61,7 @@ class Reviewer extends React.Component {
             responses: [],
         }
 
-        //this.segment = this.props.text.nextSegment();
-        this.segment = this.props.model.segments[0];
+        this.segment = Model.nextSegment(this.props.model);
         
         this.handleKeyDown = this.handleKeyDown.bind(this);
     }
