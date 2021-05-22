@@ -13,14 +13,9 @@ class Token extends React.Component {
     }
 
     render() {
-        let className = 'current';
-        switch (this.props.response) {
-            case 1:
-                className = 'hit';
-                break;
-            case 0:
-                className = 'miss';
-                break;
+        let className = 'hit';
+        if (this.props.response == 0) {
+            className = 'miss';
         }
 
         return e('span',
@@ -49,19 +44,10 @@ class Segment extends React.Component {
             }, null));
         }
 
-        if (this.props.mode == 'prompt') {
-            return e('span',
-                {className: 'segment'},
-                ...visible,
-                '_____'
-            );
-        } else {
-            return e('span',
-                {className: 'segment'},
-                ...visible,
-                e(Token, {token: this.props.segment.tokens[i]}, null)
-            );
-        }
+        return e('span',
+            {className: 'segment'},
+            ...visible,
+        );
     }
 }
 
@@ -71,11 +57,35 @@ class Reviewer extends React.Component {
         super(props);
 
         this.state = {
-            mode: 'prompt',
             responses: [],
         }
+
+        this.segment = this.props.text.nextSegment();
         
         this.handleKeyDown = this.handleKeyDown.bind(this);
+    }
+
+    nextToken() {
+        if (this.state.responses.length === this.segment.tokens.length) {
+            this.props.onSegmentResponses(this.state.responses)
+            return;
+        }
+
+        this.setState({
+            responses: this.state.responses.concat(1),
+        });
+    }
+
+    miss() {
+        if (this.state.responses.slice(-1) == 1) {
+            this.setState({
+                responses: this.state.responses.slice(0, -1).concat(0),
+            });
+        } else {
+            this.setState({
+                responses: this.state.responses.slice(0, -1),
+            });
+        }
     }
 
     componentDidMount() {
@@ -87,40 +97,49 @@ class Reviewer extends React.Component {
     }
 
     handleKeyDown(e) {
-        if (['ArrowLeft', 'ArrowRight'].includes(e.key)) {
-            switch (this.state.mode) {
-                case 'prompt':
-                    this.setState({mode: 'respond'});
-                    break;
-                case 'respond':
-                    const response = e.key == 'ArrowRight' ? 1 : 0;
-                    this.setState({
-                        mode: 'prompt',
-                        responses: this.state.responses.concat(response),
-                    });
-                    break;
-            }
+        switch(e.key) {
+            case 'ArrowRight':
+                this.nextToken();
+                break;
+            case 'ArrowLeft':
+                this.miss();
+                break;
         }
     }
 
     render() {
         return e(Segment, {
-            segment: this.props.text.nextSegment(),
-            mode: this.state.mode,
+            segment: this.segment,
             responses: this.state.responses,
         }, null);
     }
 }
 
 
+const text = AnshoText.parse(SAMPLE_TEXT)
 class App extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            text: text
+        };
+
+        this.handleSegmentResponses = this.handleSegmentResponses.bind(this);
+    }
+
     render() {
-        return e('div', null, e(Reviewer, {text: this.props.text}, null));
+        return e('div', null, e(Reviewer, {
+            text: this.state.text,
+            onSegmentResponses: this.handleSegmentResponses
+        }, null));
+    }
+
+    handleSegmentResponses(responses) {
     }
 }
 
 
-const text = AnshoText.parse(SAMPLE_TEXT)
 ReactDOM.render(
     e(App, {text: text}, null),
     document.getElementById('root')
