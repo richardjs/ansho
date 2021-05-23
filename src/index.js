@@ -78,8 +78,20 @@ class Reviewer extends React.Component {
         this.handleKeyDown = this.handleKeyDown.bind(this);
     }
 
+    render() {
+        return e(Segment, {
+            segment: this.segment(),
+            responses: this.state.responses,
+        }, null);
+    }
+
+    segment(offset) {
+        if (offset === undefined) offset = 0;
+        return this.props.model.segments[this.props.segmentIndex + offset];
+    }
+
     nextToken() {
-        if (this.state.responses.length === this.props.segment.tokens.length) {
+        if (this.state.responses.length === this.segment().tokens.length) {
             this.props.onSegmentResponses(this.state.responses)
             this.setState({responses: []});
             return;
@@ -120,13 +132,6 @@ class Reviewer extends React.Component {
                 break;
         }
     }
-
-    render() {
-        return e(Segment, {
-            segment: this.props.segment,
-            responses: this.state.responses,
-        }, null);
-    }
 }
 
 
@@ -146,7 +151,8 @@ class App extends React.Component {
 
     render() {
         return e('div', null, e(Reviewer, {
-            segment: this.state.model.segments[this.state.segmentIndex],
+            model: model,
+            segmentIndex: this.state.segmentIndex,
             onSegmentResponses: this.handleSegmentResponses,
         }, null));
     }
