@@ -26,7 +26,7 @@ export function blankToken() {
 
 
 function tokenScore(token) {
-    return token.visits > 0 ? token.hits / token.vistis : -1;
+    return token.visits > 0 ? token.hits / token.visits : -1;
 }
 
 
@@ -36,13 +36,13 @@ function segmentScore(segment) {
 }
 
 
-export function nextSegment(model) {
-    let next = model.segments[0];
-    let score = segmentScore(next);
-    for (const segment of model.segments) {
-        const s = segmentScore(segment);
+export function nextSegmentIndex(model) {
+    let next = 0;
+    let score = segmentScore(model.segments[0]);
+    for (let i = 0; i < model.segments.length; i++) {
+        const s = segmentScore(model.segments[i]);
         if (s < score) {
-            next = segment;
+            next = i;
             score = s;
         }
     }

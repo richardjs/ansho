@@ -61,14 +61,13 @@ class Reviewer extends React.Component {
             responses: [],
         }
 
-        this.segment = Model.nextSegment(this.props.model);
-        
         this.handleKeyDown = this.handleKeyDown.bind(this);
     }
 
     nextToken() {
-        if (this.state.responses.length === this.segment.tokens.length) {
+        if (this.state.responses.length === this.props.segment.tokens.length) {
             this.props.onSegmentResponses(this.state.responses)
+            this.setState({responses: []});
             return;
         }
 
@@ -110,7 +109,7 @@ class Reviewer extends React.Component {
 
     render() {
         return e(Segment, {
-            segment: this.segment,
+            segment: this.props.segment,
             responses: this.state.responses,
         }, null);
     }
@@ -121,9 +120,11 @@ const model = Lexer.parse(SAMPLE_TEXT);
 class App extends React.Component {
     constructor(props) {
         super(props);
+        window.app = this;
 
         this.state = {
-            model: model
+            model: model,
+            segmentIndex: Model.nextSegmentIndex(model),
         };
 
         this.handleSegmentResponses = this.handleSegmentResponses.bind(this);
@@ -131,12 +132,23 @@ class App extends React.Component {
 
     render() {
         return e('div', null, e(Reviewer, {
-            model: this.state.model,
-            onSegmentResponses: this.handleSegmentResponses
+            segment: this.state.model.segments[this.state.segmentIndex],
+            onSegmentResponses: this.handleSegmentResponses,
         }, null));
     }
 
     handleSegmentResponses(responses) {
+        const model = Model.clone(this.state.model);
+        for (let i = 0; i < responses.length; i++) {
+            const token = model.segments[this.state.segmentIndex].tokens[i];
+            token.hits += responses[i];
+            token.visits++;
+        }
+
+        this.setState({
+            model: model,
+            segmentIndex: Model.nextSegmentIndex(model),
+        });
     }
 }
 
