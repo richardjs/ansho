@@ -36,6 +36,20 @@ class Segment extends React.Component {
     }
 
     render() {
+        if (this.props.startVisible) {
+            const tokens = this.props.segment.tokens.map((token) => {
+                return e(Token, {
+                    token: token,
+                    response: 1,
+                }, null);
+            })
+
+            return e('span',
+                {className: 'segment'},
+                ...tokens,
+            );
+        }
+
         const visible = [];
         let i;
         for (i = 0; i < this.props.responses.length; i++) {
