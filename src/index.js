@@ -1,18 +1,12 @@
 import * as Lexer from './lexer.js';
 import * as Model from './model.js';
-import {SAMPLE_TEXT} from './sample.js';
+import {SAMPLE_1, SAMPLE_2} from './sample.js';
 
 
 const e = React.createElement;
 
 
 class Token extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.token = props.token;
-    }
-
     render() {
         let className = 'hit';
         if (this.props.response == 0) {
@@ -23,26 +17,22 @@ class Token extends React.Component {
             {className: 'token'},
             e('span', {
                 className: className,
-            }, this.token.string),
-            e('span', null, this.token.suffix),
+            }, this.props.token.string),
+            e('span', null, this.props.token.suffix),
         );
     }
 }
 
 
 class Segment extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-
     render() {
         if (this.props.startVisible) {
-            const tokens = this.props.segment.tokens.map((token) => {
+            const tokens = this.props.segment.tokens.map(token => {
                 return e(Token, {
                     token: token,
                     response: 1,
                 }, null);
-            })
+            });
 
             return e('span',
                 {className: 'segment'},
@@ -79,10 +69,26 @@ class Reviewer extends React.Component {
     }
 
     render() {
-        return e(Segment, {
-            segment: this.segment(),
-            responses: this.state.responses,
-        }, null);
+        const segments = [];
+        for (let offset = -3; offset < 0; offset ++) {
+            const segment = this.segment(offset);
+            if (segment === undefined) {
+                continue;
+            }
+            segments.push(e(Segment, {
+                segment: segment,
+                startVisible: true,
+                key: this.props.segmentIndex + offset,
+            }, null));
+        }
+        segments.push(
+            e(Segment, {
+                segment: this.segment(),
+                responses: this.state.responses,
+                key: this.props.segmentIndex,
+            }, null),
+        );
+        return segments;
     }
 
     segment(offset) {
@@ -92,8 +98,9 @@ class Reviewer extends React.Component {
 
     nextToken() {
         if (this.state.responses.length === this.segment().tokens.length) {
-            this.props.onSegmentResponses(this.state.responses)
+            const responses = [...this.state.responses];
             this.setState({responses: []});
+            this.props.onSegmentResponses(responses)
             return;
         }
 
@@ -135,7 +142,7 @@ class Reviewer extends React.Component {
 }
 
 
-const model = Lexer.parse(SAMPLE_TEXT);
+const model = Lexer.parse(SAMPLE_2);
 class App extends React.Component {
     constructor(props) {
         super(props);
@@ -150,11 +157,11 @@ class App extends React.Component {
     }
 
     render() {
-        return e('div', null, e(Reviewer, {
+        return e(Reviewer, {
             model: model,
             segmentIndex: this.state.segmentIndex,
             onSegmentResponses: this.handleSegmentResponses,
-        }, null));
+        }, null, null);
     }
 
     handleSegmentResponses(responses) {
