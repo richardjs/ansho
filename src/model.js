@@ -1,77 +1,70 @@
-export function blankModel() {
-    return {
-        version: "0.1",
-        name: '',
-        segments: [
-        ],
+export class Model {
+    constructor() {
+        this.version = "0.1";
+        this.name = '';
+        this.segments = [];
     }
-}
 
-
-export function blankSegment() {
-    return {
-        tokens: [],
+    nextSegment() {
+        let next = 0;
+        let score = this._segmentScore(0);
+        for (let i = 0; i < this.segments.length; i++) {
+            const s = this._segmentScore(i);
+            if (s < score) {
+                next = i;
+                score = s;
+            }
+        }
+        return next;
     }
-}
 
-
-export function blankToken() {
-    return {
-        string: '',
-        suffix: '',
-        hits: 0,
-        visits: 0,
+    clone() {
+        // Surely there's a more appropriate way to do this
+        return Object.assign(new Model(), JSON.parse(JSON.stringify(this)));
     }
-}
 
-
-function totalModelVisits(model) {
-    let totalVisits = 0;
-    for (const segment of model.segments) {
-        for (const token of segment.tokens) {
-            totalVisits += token.visits;
+    _Segment() {
+        return {
+            tokens: [],
         }
     }
-    return totalVisits;
-}
 
-
-function tokenScore(token, totalVisits) {
-    if (token.visits === 0) {
-        return -1;
-    }
-
-    // TODO break out uctc
-    let uctc = 2.0;
-    return (token.hits / token.visits
-        + uctc * Math.sqrt(Math.log(totalVisits) / token.visits));
-}
-
-
-function segmentScore(segment, totalVisits) {
-    const tokenScores = segment.tokens.map(
-        token => tokenScore(token, totalVisits));
-    return Math.min(...tokenScores);
-}
-
-
-export function nextSegmentIndex(model) {
-    let totalVisits = totalModelVisits(model);
-
-    let next = 0;
-    let score = segmentScore(model.segments[0], totalVisits);
-    for (let i = 0; i < model.segments.length; i++) {
-        const s = segmentScore(model.segments[i], totalVisits);
-        if (s < score) {
-            next = i;
-            score = s;
+    _Token() {
+        return {
+            string: '',
+            suffix: '',
+            hits: 0,
+            visits: 0,
         }
     }
-    return next;
+
+    _totalVisits() {
+        let totalVisits = 0;
+        for (const segment of this.segments) {
+            for (const token of segment.tokens) {
+                totalVisits += token.visits;
+            }
+        }
+        return totalVisits;
+    }
+
+    _tokenScore(token) {
+        if (token.visits === 0) {
+            return -1;
+        }
+
+        // TODO break out uctc
+        // TODO don't recalculate totalVisits
+        let uctc = 2.0;
+        return (token.hits / token.visits
+            + uctc * Math.sqrt(Math.log(this._totalVisits()) / token.visits));
+    }
+
+    _segmentScore(i) {
+        const tokenScores = this.segments[i].tokens.map(
+            token => tokenScore(token));
+        return Math.min(...tokenScores);
+    }
 }
 
-
-export function clone(model) {
-    // Surely there's a more appropriate way to do this
-    return JSON.parse(JSON.stringify(model));
-}
+window.Model = Model;
