@@ -6,8 +6,10 @@ const TOKEN_DELIMITERS = SEGMENT_DELIMITERS + ' ';
 
 
 export function parse(text) {
-    const model = Model.blankModel(); let segment = Model.blankSegment();
-    let token = Model.blankToken();
+    const model = new Model.Model();
+    let segment = model._Segment();
+    let token = model._Token();
+
     for (const c of text) {
         if (TOKEN_DELIMITERS.includes(c)) {
             token.suffix += c;
@@ -17,12 +19,12 @@ export function parse(text) {
             for (const d of SEGMENT_DELIMITERS) {
                 if (token.suffix.includes(d)) {
                     model.segments.push(segment);
-                    segment = Model.blankSegment();
+                    segment = model._Segment();
                     break;
                 }
             }
 
-            token = Model.blankToken();
+            token = model._Token();
         }
 
         token.string += c;

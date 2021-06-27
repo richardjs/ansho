@@ -70,7 +70,7 @@ class Reviewer extends React.Component {
 
     render() {
         const segments = [];
-        for (let offset = -3; offset < 0; offset ++) {
+        for (let offset = -4; offset < 0; offset ++) {
             const segment = this.segment(offset);
             if (segment === undefined) {
                 continue;
@@ -78,14 +78,14 @@ class Reviewer extends React.Component {
             segments.push(e(Segment, {
                 segment: segment,
                 startVisible: true,
-                key: this.props.segmentIndex + offset,
+                key: this.props.segment + offset,
             }, null));
         }
         segments.push(
             e(Segment, {
                 segment: this.segment(),
                 responses: this.state.responses,
-                key: this.props.segmentIndex,
+                key: this.props.segment,
             }, null),
         );
         return segments;
@@ -93,7 +93,7 @@ class Reviewer extends React.Component {
 
     segment(offset) {
         if (offset === undefined) offset = 0;
-        return this.props.model.segments[this.props.segmentIndex + offset];
+        return this.props.model.segments[this.props.segment + offset];
     }
 
     nextToken() {
@@ -150,7 +150,7 @@ class App extends React.Component {
 
         this.state = {
             model: model,
-            segmentIndex: Model.nextSegmentIndex(model),
+            segment: model.nextSegment(),
         };
 
         this.handleSegmentResponses = this.handleSegmentResponses.bind(this);
@@ -159,22 +159,27 @@ class App extends React.Component {
     render() {
         return e(Reviewer, {
             model: model,
-            segmentIndex: this.state.segmentIndex,
+            segment: this.state.segment,
             onSegmentResponses: this.handleSegmentResponses,
-        }, null, null);
+        }, null);
     }
 
+    /**
+     * A Reviewer will send back batches of responses, corresponding to
+     * the tokens of the segment at state.segment.
+     */
     handleSegmentResponses(responses) {
-        const model = Model.clone(this.state.model);
+        const model = this.state.model.clone();
+
         for (let i = 0; i < responses.length; i++) {
-            const token = model.segments[this.state.segmentIndex].tokens[i];
+            const token = model.segments[this.state.segment].tokens[i];
             token.hits += responses[i];
             token.visits++;
         }
 
         this.setState({
             model: model,
-            segmentIndex: Model.nextSegmentIndex(model),
+            segment: model.nextSegment(model),
         });
     }
 }

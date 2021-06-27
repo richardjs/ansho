@@ -62,7 +62,7 @@ export class Model {
 
     _segmentScore(i) {
         const tokenScores = this.segments[i].tokens.map(
-            token => tokenScore(token));
+            token => this._tokenScore(token));
         return Math.min(...tokenScores);
     }
 }
